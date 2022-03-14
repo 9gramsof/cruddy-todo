@@ -31,6 +31,7 @@ const writeCounter = (count, callback) => {
     if (err) {
       throw ('error writing counter');
     } else {
+      //console.log('counter file is: ', exports.counterFile);
       callback(null, counterString);
     }
   });
@@ -38,9 +39,38 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback) => {
+//read the pathname(how to get hte pathname?)
+//write to the pathname
+
+  //getthe current counter by invoking readCounter
+  readCounter((err, data) => {
+    if (err) {
+      callback(null, 0);
+      // console.log('error reading data');
+    } else {
+      counter = data + 1;
+      writeCounter(counter, (err, counterString) => {
+        if (err) {
+          console.log('error writing data');
+        } else {
+          // return (counterString);
+          callback(null, zeroPaddedNumber(counter));
+        }
+      });
+    }
+  });
+
+  //update counter.txt with writeCounter
+
+
+  //readCOunter should check for an error first.
+  //  if error
+  //    then IDK
+  //otherwise
+  //update counter,increment counter,invoke writeCounter
+
+  // return zeroPaddedNumber(counter);
 };
 
 

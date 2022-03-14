@@ -7,11 +7,34 @@ var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
+
+//Thisfunction will have to create a new file every time it is passed a new todo
+//  eachfile it makes will be named with it's unique ID
+//  its contents will be the text contents that it is passedwhen it is invoked.
+
+//Input - the parameter 'text' will be a string that the user writes in the client, ie. "make pancakes".  Callback is what is provided by server. In this case, a successfulPOST request will send us a callback that will return id and text to the client.
+//OUtput - create a file with filename of id and body will be 'text'
+//c/e - ??
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  let id;
+  counter.getNextUniqueId((err, num) => {
+    id = num;
+    //console.log('dataDir: ', exports.dataDir);
+    fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, () => {
+      if (err) {
+        console.log('error writing file');
+      } else {
+        callback(null, { id, text });
+      }
+    }));
+  });
+  //this is asynchronous so ID is not immediately updated
+  //items[id] = text;
+  //console.log(items);
+
 };
+
+
 
 exports.readAll = (callback) => {
   var data = _.map(items, (text, id) => {
