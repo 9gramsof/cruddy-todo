@@ -40,10 +40,6 @@ const writeCounter = (count, callback) => {
 // Public API - Fix this function //////////////////////////////////////////////
 
 exports.getNextUniqueId = (callback) => {
-//read the pathname(how to get hte pathname?)
-//write to the pathname
-
-  //getthe current counter by invoking readCounter
   readCounter((err, data) => {
     if (err) {
       callback(null, 0);
@@ -54,23 +50,11 @@ exports.getNextUniqueId = (callback) => {
         if (err) {
           console.log('error writing data');
         } else {
-          // return (counterString);
-          callback(null, zeroPaddedNumber(counter));
+          callback(null, counterString);
         }
       });
     }
   });
-
-  //update counter.txt with writeCounter
-
-
-  //readCOunter should check for an error first.
-  //  if error
-  //    then IDK
-  //otherwise
-  //update counter,increment counter,invoke writeCounter
-
-  // return zeroPaddedNumber(counter);
 };
 
 

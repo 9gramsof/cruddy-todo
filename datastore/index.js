@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+const readFilePromise = Promise.promisify(fs.readFile);
 
 var items = {};
 
@@ -15,18 +17,25 @@ var items = {};
 //Input - the parameter 'text' will be a string that the user writes in the client, ie. "make pancakes".  Callback is what is provided by server. In this case, a successfulPOST request will send us a callback that will return id and text to the client.
 //OUtput - create a file with filename of id and body will be 'text'
 exports.create = (text, callback) => {
-  let id;
-  counter.getNextUniqueId((err, num) => {
-    id = num;
-    fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, () => {
-      if (err) {
-        console.log('error writing file');
-      } else {
-        callback(null, { id, text });
-      }
-    }));
+  counter.getNextUniqueId((err, id) => {
+    if (err) {
+      fs.writeFile(path.join(exports.dataDir), '00000.txt'), text, (err) => {
+        if (err) {
+          console.log('error writing first file');
+        } else {
+          callback(null, { id, text });
+        }
+      };
+    } else {
+      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
+        if (err) {
+          console.log('error writing file');
+        } else {
+          callback(null, { id, text });
+        }
+      });
+    }
   });
-
 };
 
 
@@ -36,10 +45,23 @@ exports.readAll = (callback) => {
     if (err) {
       console.log('error reading all files');
     } else {
-      callback(null, data.map((item) => { return {'id': item.slice(0, 5), 'text': item.slice(0, 5) }; }));
+      let todos = data.map((item) => {
+        var filepath = path.join(exports.dataDir, item);
+        var id = path.basename(item, '.txt');
+        return readFilePromise(filepath).then(fileText => {
+          console.log('fileText', fileText.toString());
+          return {
+            'id': id,
+            'text': fileText.toString()
+          };
+        });
+      });
+      Promise.all(todos)
+        .then(items => callback(null, items), err => callback(err));
     }
-  });
 
+  // [{id: '00001', text: 'make pancakes'}, ]
+  });
 };
 
 exports.readOne = (id, callback) => {
