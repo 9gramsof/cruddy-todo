@@ -34,13 +34,25 @@ exports.create = (text, callback) => {
 
 };
 
+// fs.readdir(pathname, callback)
+//callback willbe invoked with (err, [data])
+
+
 
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+
+  fs.readdir(exports.dataDir, (err, data) => {
+    if (err) {
+      console.log('error reading all files');
+    } else {
+      callback(null, data.map((item) => { return {'id': item.slice(0, 5), 'text': item.slice(0, 5) }; }));
+    }
   });
-  callback(null, data);
+  // var data = _.map(items, (text, id) => {
+  //   return { id, text };
+  // });
+  // callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
