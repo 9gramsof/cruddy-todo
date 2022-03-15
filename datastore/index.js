@@ -74,13 +74,12 @@ exports.readOne = (id, callback) => {
 
 exports.update = (id, text, callback) => {
 
-
   fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
     if (err) {
       callback(new Error(`No item with id: ${id}`));
     } else {
       //console.log('counter file is: ', exports.counterFile);
-      callback(null, text);
+      callback(null, { id, text });
     }
   });
 
